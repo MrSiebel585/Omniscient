@@ -1,0 +1,36 @@
+#!/bin/bash
+# omniscientctl - CLI frontend for the Omniscient AI Core Runtime
+
+API_URL="http://localhost:9876/generate"
+LOG_FILE="/opt/omniscient/logs/omniscientctl.log"
+
+# Colors
+GREEN="\033[1;32m"
+BLUE="\033[1;34m"
+RESET="\033[0m"
+
+function log_event() {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S')] [PROMPT] $1" >> "$LOG_FILE"
+}
+
+function usage() {
+  echo -e "${BLUE}Usage:${RESET} omniscientctl "your prompt here""
+  echo -e "       omniscientctl -f logfile.txt"
+  exit 1
+}
+
+# Handle file input
+if [[ "$1" == "-f" && -n "$2" ]]; then
+  PROMPT=$(cat "$2")
+elif [[ -n "$1" ]]; then
+  PROMPT="$1"
+else
+  usage
+fi
+
+echo -e "${BLUE}Sending to Omniscient AI Runtime...${RESET}"
+RESPONSE=$(curl -s -X POST "$API_URL" -H "Content-Type: application/json" -d "{"prompt": "$PROMPT"}")
+RESULT=$(echo "$RESPONSE" | jq -r '.result // .response')
+
+log_event "$PROMPT"
+echo -e "${GREEN}AI:${RESET} $RESULT"
