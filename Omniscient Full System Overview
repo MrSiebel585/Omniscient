@@ -1,0 +1,214 @@
+OMNISCIENT: SYSTEM OVERVIEW
+
+✅ 1. Core Infrastructure
+
+Located under /opt/omniscient/ with key subfolders:
+
+ai/: Voice agent, whisper STT, GPT automation
+
+bin/, scripts/: Main executables and bash functions
+
+web/: Streamlit + Taipy dashboards
+
+logs/: Voice, OSINT, system logs
+
+conf/: Configs like omniscient.conf
+
+init/: System installers, structure generators
+
+
+
+---
+
+✅ 2. Key Modules & Features
+
+🔧 Installation & Setup
+
+Script	Purpose
+
+omniscient-master-installer.sh	Installs entire framework structure
+autogen_omniscient_structure.sh	Builds /opt/omniscient/ tree
+omniscient_system_setup.sh	Applies global bashrc, ulimits, etc.
+omniscient_path.sh	Adds /opt/omniscient/bin to $PATH
+make-immutable-omniscientdirs.sh	Locks system dirs with chattr
+omniscient_venv_builder.sh	Python venv at /opt/omniscient/venv
+
+
+
+---
+
+📟 Voice & Agent Modules
+
+Tool	Path	Description
+
+voice_agent_upgraded.py	/opt/omniscient/ai/	Voice-controlled task automation
+omnivoice.sh	/etc/profile.d/	Global system voice (OpenAI TTS)
+omniscient-voice.service	/etc/systemd/system/	Voice daemon
+
+
+🎙 Features:
+
+Whisper-based STT
+
+GPT reasoning if commands unknown
+
+Session logs: /opt/omniscient/logs/voice_agent_session.log
+
+
+
+---
+
+📡 AI Pipelines
+
+Script	Role
+
+ollama_du_pipeline.sh	Analyzes disk usage + summarizes via Ollama
+bash_scripts_interpreter_ollama_pipeline.sh	AI refactoring/feedback loop
+blackhatlmpipeline.sh	LLM sandbox for red team operations
+ollama_refactor_init_pipeline.sh	Rewrite shell/init files with LLMs
+
+
+
+---
+
+🧰 Monitoring & Logging
+
+Script	Role
+
+remote-rsyslog-manager.sh	Remote syslog + central logging
+omnisint_script_log_creation.sh	Adds log output hooks to all tools
+file_watcher.sh	Monitors key dirs for tampering
+
+
+
+---
+
+🧠 3. Unified Visual Dashboard
+
+Located in: /opt/omniscient/web/
+
+Components:
+
+unified_dashboard.py: Streamlit interface launcher
+
+taipy_threat_dashboard.py: Timeline map of OSINT events
+
+case_overlays.py: Shows logs, voice transcripts, notes
+
+smart_case_export.py: Exports notes+transcripts to PDF
+
+auto_tag_cases.py: Auto-classifies case tags via AI
+
+voice_dashboard.py: Voice button interface
+
+
+Launch with:
+
+omniscientctl launch-dashboard
+
+Enabled on boot via:
+
+sudo systemctl enable omniscient-dashboard
+
+
+---
+
+📋 4. CLI Tool: omniscientctl
+
+Provides a unified command interface to launch:
+
+Dashboards
+
+Pipelines
+
+Voice agents
+
+System setup
+
+Script scanners
+
+Log auditors
+
+
+Supports subcommands like:
+
+omniscientctl script scan
+omniscientctl launch-dashboard
+omniscientctl speak "Hello, Jeremy"
+
+
+---
+
+🔍 5. OSINT + Recon Modules
+
+Script	Role
+
+records-lookup.sh	Skip-trace & people search
+nmaphf-vul-scan.sh	HF-enhanced vulnerability scans
+omnieye_digest_ai.py	Digests Omnieye output and summarizes
+deploymetasploit.sh	Metasploit automation
+ettercap-setup.sh	Network MITM recon setup
+
+
+
+---
+
+🧾 6. Autoenv & Git Ops
+
+Script	Role
+
+init.autoenv-install.sh	Autoenv loader for smart directory configs
+move_autoenv.sh	Injects .autoenv across dirs
+gitcreds.sh	GitHub SSH/API key manager
+omniscient-git-setup.sh	Initializes Omniscient repo and pushes to Git
+
+
+
+---
+
+📁 Default Output Paths
+
+Logs: /opt/omniscient/logs/*.log
+
+Case notes: /opt/omniscient/logs/case_notes.log
+
+Voice logs: /opt/omniscient/logs/voice_transcripts.log
+
+Tags: /opt/omniscient/logs/case_tags.json
+
+Reports: /opt/omniscient/logs/exported_case_summary.pdf
+
+
+
+---
+
+🧩 Summary: Working Status by Category
+
+Category	Status	Notes
+
+Core Installers	✅ Complete	Master + modular installers work end-to-end
+Voice Agent	✅ Fully Integrated	Global, AI-driven, cross-shell
+OSINT Dashboards	✅ Unified + Bootable	Streamlit/Taipy GUI launched via systemd
+Logging Framework	✅ Active	rsyslog, file logging, async AI summaries
+AI Pipelines	✅ Operational	Ollama + GPT flows for refactor, DU, summarization
+OSINT Modules	✅ Available	Recon, skip tracing, HF-based scans
+omniscientctl CLI	✅ Functional	Launches modules, speaks, scans scripts
+PDF Export/Tagging	✅ Complete	Full case reporting + AI-generated tags
+Autoenv, GitOps	✅ Active	Autoenv preloads, Git push tools ready
+
+
+
+---
+
+Would you like a graphical project map, a status checklist, or a dashboard that visualizes this system-wide overview live?
+
+I can also generate:
+
+inject_logging_wrapper.sh
+
+Missing omniscientctl script scan --annotate
+
+.deb build script for full deployment
+
+
+Let me know where you'd like to pick up next.
