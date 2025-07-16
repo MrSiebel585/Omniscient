@@ -2,6 +2,233 @@
 Yet another digital forensics repository... (we'll see)
 
 
+
+omniscientctl — Unified CLI Overview
+
+File Location:
+/usr/local/bin/omniscientctl (installed globally)
+Source Directory:
+/opt/omniscient/web/unified_dashboard.py, /opt/omniscient/ai/, /opt/omniscient/scripts/, /opt/omniscient/logs/
+Log:
+/opt/omniscient/logs/omniscientctl.log
+
+
+---
+
+✅ Primary Features
+
+🔹 1. Dashboard Control
+
+omniscientctl launch-dashboard
+
+> Launches the unified Streamlit AI dashboard with:
+
+
+
+OSINT command cards
+
+Crosstrax case tracker (/var/www/html/crosstrax)
+
+Live Omnilog tail viewer
+
+Voice interface
+
+
+omniscientctl launch-threatmap
+
+> Runs Taipy-based threat timeline visualization (taipy_threat_dashboard.py)
+
+
+
+
+---
+
+🔹 2. Voice Integration
+
+omniscientctl voice
+
+> Runs voice_agent_upgraded.py, enables:
+
+
+
+Whisper STT voice input
+
+Command recognition
+
+AI-suggested tasks
+
+Logs session to /opt/omniscient/logs/voice_agent_session.log
+
+
+omniscientctl speak "System initialized and voice active."
+
+> Text-to-speech via speak.py with OpenAI TTS (voice: onyx or echo)
+
+
+
+
+---
+
+🔹 3. Script & Logging Ops
+
+omniscientctl script scan
+
+> Checks all .sh scripts in /opt/omniscient for logging wrappers
+✅ Color-coded output
+✅ Optionally auto-patch
+
+
+
+omniscientctl script scan --annotate
+
+> Shows inline code summary annotations (see: annotated-inline-script-summary.md)
+
+
+
+
+---
+
+🔹 4. Case Management
+
+omniscientctl export-case
+
+> Generates PDF from /opt/omniscient/logs/case_notes.log + voice_transcripts.log
+📄 Output: /opt/omniscient/logs/exported_case_summary.pdf
+
+
+
+omniscientctl auto-tag-case
+
+> Auto-tags current case with GPT-generated tags
+📝 Output: /opt/omniscient/logs/case_tags.json
+
+
+
+
+---
+
+🔹 5. Data Pipeline Integrations
+
+omniscientctl omnilog-summarize
+
+> Uses Ollama or GPT model to summarize syslog or omnilog entries in human English
+
+
+
+omniscientctl omnieye-digest
+
+> Summarizes web scraping output from Omnieye module
+Reads from: /opt/omniscient/logs/scraped/omnieye.log
+Summarizes to: dashboard + TTS voice
+
+
+
+
+---
+
+🔹 6. System Control
+
+omniscientctl system update
+omniscientctl system backup
+omniscientctl system restore
+
+> Aliases for running integrated Bash functions from:
+
+
+
+omniscient_system_setup.sh
+
+omniscient_file_infrastructure_backup.sh
+
+
+
+---
+
+🔹 7. Developer & Installer Utilities
+
+omniscientctl dev refresh-env
+
+> Refresh autoenv and .venv activation from /opt/omniscient/venv
+
+
+
+omniscientctl dev check-venv
+
+> Validates Python environment and logs missing packages
+
+
+
+omniscientctl dev annotate
+
+> Runs manifest annotation and saves new summary for integration
+
+
+
+
+---
+
+🔧 Services Installed with omniscientctl
+
+omniscient-dashboard.service: launches unified dashboard on boot
+
+omniscient-voice.service: speaks logins, errors, events using daemon
+
+/etc/cron.hourly/omniscient_hourly_voice.sh: hourly vocal updates
+
+
+
+---
+
+📁 File Paths (Key Assets)
+
+Purpose	Path
+
+Dashboard UI	/opt/omniscient/web/unified_dashboard.py
+Voice Agent	/opt/omniscient/ai/voice_agent_upgraded.py
+Speak Engine	/opt/omniscient/ai/speak.py
+Exported Cases	/opt/omniscient/logs/exported_case_summary.pdf
+Case Notes	/opt/omniscient/logs/case_notes.log
+Tags JSON	/opt/omniscient/logs/case_tags.json
+Transcripts	/opt/omniscient/logs/voice_transcripts.log
+
+
+
+---
+
+🧩 Extensibility (Plug-and-Play Modules)
+
+You can easily add to this CLI with:
+
+/opt/omniscient/bin/omniscientctl-modules/
+
+Each file can follow this format:
+
+#!/bin/bash
+# Command: system status
+echo "Running system status check..."
+
+And will be callable via:
+
+omniscientctl system status
+
+
+---
+
+📝 Next Suggested Steps
+
+Would you like me to:
+
+[ ] Auto-build the current omniscientctl CLI into a .deb installer?
+
+[ ] Push the updated command tree into omniscientctl --help output?
+
+[ ] Add user role-aware control (e.g., sudo vs analyst vs guest)?
+
+
+Let me know and I’ll finalize it for packaging and distribution.
+
+
+
 dynamic_script_loader.py - loads bash shell scripts for digital forensics from multiple linux endpoints for asyncronous execution in a framework.
 
 
