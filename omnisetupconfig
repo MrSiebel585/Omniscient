@@ -1,0 +1,153 @@
+#!/bin/bash
+
+─── OMNISCIENT FRAMEWORK CLI ───────────────────────────────────────────────
+
+Version: Final Unified CLI
+
+Note: This is the fully unified omniscientctl — to be separated or modularized intelligently as needed.
+
+Generated on: 2025-05-30 21:54:05
+
+OMNIROOT="/opt/omniscient"
+CONF="$OMNIROOT/omniscient.conf"
+LOG="$OMNIROOT/logs/omniscientctl.log"
+PROMPT_LOG="$LOG"
+SUMMARY_LOG="$OMNIROOT/logs/ai_summary.log"
+PERIODIC_MAINTENANCE="$OMNIROOT/init/cleanup.sh"
+SERVICES_TO_ENABLE="apache2,mysql"
+
+[ -f "$OMNIROOT/.env" ] && source "$OMNIROOT/.env"
+[ -f "$OMNIROOT/.autoenv/activate.sh" ] && source "$OMNIROOT/.autoenv/activate.sh"
+
+mkdir -p "$(dirname "$LOG")"
+echo "[+] OmniscientCTL invoked at $(date) with args: $*" >> "$LOG"
+
+if command -v crudini &> /dev/null && [[ -f "$CONF" ]]; then
+MODEL=$(crudini --get "$CONF" models MODEL_BACKEND 2>/dev/null || echo "gpt4all")
+LOG_LEVEL=$(crudini --get "$CONF" core LOG_LEVEL 2>/dev/null || echo "INFO")
+OLLAMA_API=$(crudini --get "$CONF" ollama API_URL 2>/dev/null || echo "http://localhost:11434/api/generate")
+else
+MODEL="gpt4all"
+LOG_LEVEL="INFO"
+OLLAMA_API="http://localhost:11434/api/generate"
+fi
+
+[[ -z "$VIRTUAL_ENV" && -f "$OMNIROOT/venv/bin/activate" ]] && source "$OMNIROOT/venv/bin/activate"
+
+MODULE_DIR="$OMNIROOT/modules"
+declare -A MODULES=()
+if [[ -d "$MODULE_DIR" ]]; then
+for mod_file in "$MODULE_DIR"/mod_.sh; do
+[[ -f "$mod_file" ]] || continue
+mod_name="${mod_file##/mod_}"
+mod_name="${mod_name%.sh}"
+enabled="true"
+if command -v crudini &> /dev/null && [[ -f "$CONF" ]]; then
+enabled=$(crudini --get "$CONF" modules "$mod_name" 2>/dev/null || echo "true")
+fi
+[[ "$enabled" == "true" ]] && source "$mod_file" && MODULES["$mod_name"]="mod_${mod_name}"
+done
+fi
+
+log_action() {
+echo "[$(date +'%F %T')] $1" | tee -a "$LOG"
+}
+
+show_help() {
+cat <<EOF
+
+🧠 Omniscient Framework CLI (omniscientctl)
+
+Usage:
+omniscientctl <command> [args]
+
+Available Commands:
+help                     Show this help message
+version                  Show loaded module versions
+logs                     View recent log output
+prompt "<text>" [engine] Send a prompt to Ollama/OpenAI/GPT4All
+omnieye-module           Run the Omnieye subsystem GUI
+summarize [file]         AI summarize syslog (default: /var/log/syslog)
+test-module <mod>        Run tests for a module
+shell                    Interactive AI Python shell
+gui                      Launch Flask interface
+streamlit                Launch Streamlit dashboard
+launch-ui                Launch engine_selector Streamlit UI
+install/update/backup    Perform setup and maintenance
+start/stop/restart       Control omniscient.service
+launch                   Show interactive CLI menu
+
+EOF
+}
+
+show_versions() {
+echo "Modules:"
+for mod in "${!MODULES[@]}"; do
+ver=$(eval echo ${MOD_VERSION_${mod}:-unknown})
+echo "  $mod : $ver"
+done
+}
+
+run_module_test() {
+test_func="mod_${1}_test"
+[[ -z "$1" ]] && echo "[\u2718] Specify module." && return 1
+declare -f "$test_func" &>/dev/null && $test_func || echo "[!] No test for module '$1'"
+}
+
+show_menu() {
+clear
+echo "🧠 Omniscient Control Panel"
+echo "1) View environment  2) AI summary"
+echo "3) Run maintenance   4) Start services"
+echo "5) System status     6) Exit"
+read -p "Choose: " choice
+case $choice in
+1) env | grep -E 'OMNISCIENT_|SUMMARY_LOG|OLLAMA_API';;
+2) echo "[$(date)] Summary: All systems nominal" >> "$SUMMARY_LOG";;
+3) [[ -x "$PERIODIC_MAINTENANCE" ]] && bash "$PERIODIC_MAINTENANCE";;
+4) IFS=',' read -ra S <<< "$SERVICES_TO_ENABLE"; for s in "${S[@]}"; do sudo systemctl start "$s"; done;;
+5) uptime; df -h | grep '/$'; free -h | grep Mem;;
+6) exit 0;;
+*) show_menu;;
+esac
+}
+
+case "$1" in
+help) show_help ;;
+version) show_versions ;;
+logs) tail -n 50 "$LOG" ;;
+shell) python3 "$OMNIROOT/ai/interactive_shell.py" ;;
+gui) cd "$OMNIROOT/web" && python3 app.py ;;
+streamlit) cd "$OMNIROOT/web" && streamlit run dashboard.py ;;
+launch-ui) streamlit run "$OMNIROOT/web/engine_selector.py" ;;
+omnieye-module) bash "$OMNIROOT/omnieye-blackbox/omnieye_module.sh" ;;
+summarize) python3 "$OMNIROOT/ai/tools/syslog_summarizer.py" "${2:-/var/log/syslog}" ;;
+test-module) shift; run_module_test "$1" ;;
+install) bash "$OMNIROOT/init/setup_omniscient.sh" ;;
+update) git -C "$OMNIROOT" pull && bash "$OMNIROOT/init/setup_omniscient.sh" ;;
+backup) bash "$OMNIROOT/scripts/backup.sh" ;;
+start) sudo systemctl start omniscient.service ;;
+stop) sudo systemctl stop omniscient.service ;;
+restart) sudo systemctl restart omniscient.service ;;
+launch) show_menu ;;
+prompt)
+[[ "$2" == "-f" ]] && prompt_text=$(cat "$3") || prompt_text="$2"
+engine="${3:-$MODEL}"
+if [[ "$engine" == "ollama" ]]; then
+response=$(curl -s -X POST "$OLLAMA_API" -H "Content-Type: application/json" -d "{"model": "$MODEL", "prompt": "$prompt_text"}")
+echo -e "\033[1;32mAI (Ollama):\033[0m $(echo "$response" | jq -r '.response // .result')"
+elif [[ "$engine" == "openai" ]]; then
+python3 -c "import os, openai; openai.api_key = os.getenv('OPENAI_API_KEY'); r = openai.ChatCompletion.create(model='$MODEL', messages=[{'role': 'user', 'content': '''$prompt_text'''}]); print(r.choices[0].message.content.strip())"
+else
+python3 "$OMNIROOT/ai/tools/run_gpt4all_prompt.py" "$prompt_text"
+fi ;;
+*)
+if [[ -n "${MODULES[$1]}" ]]; then
+shift; "${MODULES[$1]}" "$@"
+else
+echo "[\u2718] Unknown command: $1"
+echo "Run 'omniscientctl help' for usage."
+exit 1
+fi ;;
+esac
+
