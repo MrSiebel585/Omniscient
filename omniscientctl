@@ -1,7 +1,6 @@
 #!/bin/bash
 # omniscientctl - Unified Command Line Tool for Omniscient Framework
 # Location: /usr/local/bin/omniscientctl
-# Usage: omniscientctl <command>
 # Description: Controls all major system features in Omniscient OSINT/Forensics framework.
 
 LOGFILE="/opt/omniscient/logs/omniscientctl.log"
@@ -28,23 +27,16 @@ Main Commands:
   auto-tag-case              Run AI auto-tagging on case content
   omnilog-summarize          Summarize system logs using LLM
   omnieye-digest             Analyze web scraped data via Omnieye and LLM
-  system update|backup|restore  Run system scripts
-  dev refresh-env            Reload Omniscient Python virtual environment
-  dev check-venv             Check for missing Python packages
-  dev annotate               Run inline script annotation for manifest
-
-Modular Extensions:
-  system <task>              e.g. status, upgrade (calls /opt/omniscient/bin/omniscientctl-modules/system-status)
-  osint <tool>               Modular subcommand handler for OSINT tools
+  system update|backup       Run system maintenance commands
+  dev refresh-env|check-venv|annotate  Developer tasks
+  module <name>              Dynamically execute module from /opt/omniscient/modules/
 
 EOF
 }
 
 case "$COMMAND" in
 
-# ====================
 # 🎛️ Dashboard Control
-# ====================
 launch-dashboard)
     streamlit run /opt/omniscient/web/unified_dashboard.py
     ;;
@@ -53,9 +45,7 @@ launch-threatmap)
     python3 /opt/omniscient/web/taipy_threat_dashboard.py
     ;;
 
-# ===================
 # 🔊 Voice + AI Agent
-# ===================
 voice)
     python3 /opt/omniscient/ai/voice_agent_upgraded.py
     ;;
@@ -64,22 +54,18 @@ speak)
     python3 /opt/omniscient/ai/speak.py "$SUBCOMMAND"
     ;;
 
-# ========================
 # 🔍 Script Log + Annotator
-# ========================
 script)
-    if [[ "$SUBCOMMAND" == "scan" ]]; then
-        bash /opt/omniscient/scripts/inject_logging_wrapper.sh "$3"
-    elif [[ "$SUBCOMMAND" == "scan" && "$3" == "--annotate" ]]; then
+    if [[ "$SUBCOMMAND" == "scan" && "$3" == "--annotate" ]]; then
         cat /opt/omniscient/docs/annotated-inline-script-summary.md
+    elif [[ "$SUBCOMMAND" == "scan" ]]; then
+        bash /opt/omniscient/scripts/inject_logging_wrapper.sh
     else
         echo "[!] Unknown script subcommand."
     fi
     ;;
 
-# =======================
 # 📁 Case Management
-# =======================
 export-case)
     python3 /opt/omniscient/ai/smart_case_export.py
     ;;
@@ -88,9 +74,7 @@ auto-tag-case)
     python3 /opt/omniscient/ai/auto_tag_cases.py
     ;;
 
-# =======================
 # 📊 AI Pipelines
-# =======================
 omnilog-summarize)
     python3 /opt/omniscient/ai/log_summarizer.py /var/log/syslog
     ;;
@@ -99,9 +83,7 @@ omnieye-digest)
     python3 /opt/omniscient/ai/omnieye_digest_ai.py
     ;;
 
-# ========================
 # 🔧 System Maintenance
-# ========================
 system)
     case "$SUBCOMMAND" in
         update)
@@ -111,7 +93,7 @@ system)
             bash /opt/omniscient/scripts/omniscient_file_infrastructure_backup.sh
             ;;
         restore)
-            echo "[!] Restore feature not implemented yet."
+            echo "[!] Restore not implemented."
             ;;
         *)
             echo "[!] Unknown system subcommand."
@@ -119,9 +101,7 @@ system)
     esac
     ;;
 
-# ========================
 # 🧪 Developer Tools
-# ========================
 dev)
     case "$SUBCOMMAND" in
         refresh-env)
@@ -139,9 +119,7 @@ dev)
     esac
     ;;
 
-# ========================
-# 🧩 Modular Extensions
-# ========================
+# 🧩 Modular Extensions (bin scripts)
 system|osint)
     MODULE_PATH="/opt/omniscient/bin/omniscientctl-modules/${COMMAND}-${SUBCOMMAND}"
     if [[ -x "$MODULE_PATH" ]]; then
@@ -151,9 +129,18 @@ system|osint)
     fi
     ;;
 
-# ========================
+# 📦 Dynamic Module Loader
+module)
+    MODNAME="$SUBCOMMAND"
+    MODFILE="/opt/omniscient/modules/module-${MODNAME}.sh"
+    if [[ -x "$MODFILE" ]]; then
+        "$MODFILE" "${@:3}"
+    else
+        echo "[!] Module not found or not executable: $MODFILE"
+    fi
+    ;;
+
 # ❓ Help
-# ========================
 --help|-h|help|"")
     help_menu
     ;;
