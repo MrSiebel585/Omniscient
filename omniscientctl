@@ -1,36 +1,165 @@
 #!/bin/bash
-# omniscientctl - CLI frontend for the Omniscient AI Core Runtime
+# omniscientctl - Unified Command Line Tool for Omniscient Framework
+# Location: /usr/local/bin/omniscientctl
+# Usage: omniscientctl <command>
+# Description: Controls all major system features in Omniscient OSINT/Forensics framework.
 
-API_URL="http://localhost:9876/generate"
-LOG_FILE="/opt/omniscient/logs/omniscientctl.log"
+LOGFILE="/opt/omniscient/logs/omniscientctl.log"
+exec >> >(tee -a "$LOGFILE") 2>&1
 
-# Colors
-GREEN="\033[1;32m"
-BLUE="\033[1;34m"
-RESET="\033[0m"
+COMMAND="$1"
+SUBCOMMAND="$2"
 
-function log_event() {
-  echo "[$(date '+%Y-%m-%d %H:%M:%S')] [PROMPT] $1" >> "$LOG_FILE"
+function help_menu() {
+    cat <<EOF
+
+🧠 Omniscient CLI Control — omniscientctl
+
+Usage:
+  omniscientctl <command> [options]
+
+Main Commands:
+  launch-dashboard           Launch the unified Streamlit dashboard
+  launch-threatmap           Run Taipy-based threat timeline visualization
+  voice                      Start AI-powered voice agent
+  speak "<text>"             Speak a phrase via TTS
+  script scan [--annotate]   Audit and auto-annotate scripts for logging
+  export-case                Export current case notes and transcripts to PDF
+  auto-tag-case              Run AI auto-tagging on case content
+  omnilog-summarize          Summarize system logs using LLM
+  omnieye-digest             Analyze web scraped data via Omnieye and LLM
+  system update|backup|restore  Run system scripts
+  dev refresh-env            Reload Omniscient Python virtual environment
+  dev check-venv             Check for missing Python packages
+  dev annotate               Run inline script annotation for manifest
+
+Modular Extensions:
+  system <task>              e.g. status, upgrade (calls /opt/omniscient/bin/omniscientctl-modules/system-status)
+  osint <tool>               Modular subcommand handler for OSINT tools
+
+EOF
 }
 
-function usage() {
-  echo -e "${BLUE}Usage:${RESET} omniscientctl "your prompt here""
-  echo -e "       omniscientctl -f logfile.txt"
-  exit 1
-}
+case "$COMMAND" in
 
-# Handle file input
-if [[ "$1" == "-f" && -n "$2" ]]; then
-  PROMPT=$(cat "$2")
-elif [[ -n "$1" ]]; then
-  PROMPT="$1"
-else
-  usage
-fi
+# ====================
+# 🎛️ Dashboard Control
+# ====================
+launch-dashboard)
+    streamlit run /opt/omniscient/web/unified_dashboard.py
+    ;;
 
-echo -e "${BLUE}Sending to Omniscient AI Runtime...${RESET}"
-RESPONSE=$(curl -s -X POST "$API_URL" -H "Content-Type: application/json" -d "{"prompt": "$PROMPT"}")
-RESULT=$(echo "$RESPONSE" | jq -r '.result // .response')
+launch-threatmap)
+    python3 /opt/omniscient/web/taipy_threat_dashboard.py
+    ;;
 
-log_event "$PROMPT"
-echo -e "${GREEN}AI:${RESET} $RESULT"
+# ===================
+# 🔊 Voice + AI Agent
+# ===================
+voice)
+    python3 /opt/omniscient/ai/voice_agent_upgraded.py
+    ;;
+
+speak)
+    python3 /opt/omniscient/ai/speak.py "$SUBCOMMAND"
+    ;;
+
+# ========================
+# 🔍 Script Log + Annotator
+# ========================
+script)
+    if [[ "$SUBCOMMAND" == "scan" ]]; then
+        bash /opt/omniscient/scripts/inject_logging_wrapper.sh "$3"
+    elif [[ "$SUBCOMMAND" == "scan" && "$3" == "--annotate" ]]; then
+        cat /opt/omniscient/docs/annotated-inline-script-summary.md
+    else
+        echo "[!] Unknown script subcommand."
+    fi
+    ;;
+
+# =======================
+# 📁 Case Management
+# =======================
+export-case)
+    python3 /opt/omniscient/ai/smart_case_export.py
+    ;;
+
+auto-tag-case)
+    python3 /opt/omniscient/ai/auto_tag_cases.py
+    ;;
+
+# =======================
+# 📊 AI Pipelines
+# =======================
+omnilog-summarize)
+    python3 /opt/omniscient/ai/log_summarizer.py /var/log/syslog
+    ;;
+
+omnieye-digest)
+    python3 /opt/omniscient/ai/omnieye_digest_ai.py
+    ;;
+
+# ========================
+# 🔧 System Maintenance
+# ========================
+system)
+    case "$SUBCOMMAND" in
+        update)
+            bash /opt/omniscient/scripts/omniscient_system_setup.sh
+            ;;
+        backup)
+            bash /opt/omniscient/scripts/omniscient_file_infrastructure_backup.sh
+            ;;
+        restore)
+            echo "[!] Restore feature not implemented yet."
+            ;;
+        *)
+            echo "[!] Unknown system subcommand."
+            ;;
+    esac
+    ;;
+
+# ========================
+# 🧪 Developer Tools
+# ========================
+dev)
+    case "$SUBCOMMAND" in
+        refresh-env)
+            source /opt/omniscient/venv/bin/activate
+            ;;
+        check-venv)
+            python3 -m pip check
+            ;;
+        annotate)
+            bash /opt/omniscient/scripts/generate_omniscient_immutable_sql_manifest.sh
+            ;;
+        *)
+            echo "[!] Unknown dev subcommand."
+            ;;
+    esac
+    ;;
+
+# ========================
+# 🧩 Modular Extensions
+# ========================
+system|osint)
+    MODULE_PATH="/opt/omniscient/bin/omniscientctl-modules/${COMMAND}-${SUBCOMMAND}"
+    if [[ -x "$MODULE_PATH" ]]; then
+        "$MODULE_PATH" "${@:3}"
+    else
+        echo "[!] Command module not found: $MODULE_PATH"
+    fi
+    ;;
+
+# ========================
+# ❓ Help
+# ========================
+--help|-h|help|"")
+    help_menu
+    ;;
+
+*)
+    echo "[!] Unknown command: $COMMAND"
+    help_menu
+    ;;
+esac
