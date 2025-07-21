@@ -13,6 +13,70 @@ Log:
 /opt/omniscient/logs/omniscientctl.log
 
 
+Answering questions about your code or repository setup
+Searching for files, functions, or topics in your repos
+Assisting with issues, pull requests, or workflows
+Providing code explanations or debugging help
+To get started, could you tell me:
+
+What specific help do you need with your repositories?
+Which repository (or repositories) are you referring to?
+Let me know what you’d like to do!
+
+You said: https://github.com/MrSiebel585?tab=repositories
+https://github.com/MrSiebel585?tab=repositories
+Copilot said: I see you've shared your GitHub repositories
+I see you've shared your GitHub repositories page. How can I assist you with your repositories? Here are some things I can do:
+
+List all your repositories
+Search for files, code, or topics within your repositories
+Help with issues, pull requests, or documentation
+Review or explain code
+Assist with repository setup, workflows, or configuration
+Please specify what you’d like help with, and if there’s a particular repository you want to focus on!
+
+You said: Explain each file in Omniscient repo
+Explain each file in Omniscient repo
+Copilot said: Here is an explanation of each file
+Here is an explanation of each file found in your Omniscient repository (note: only the first 30 files are listed; you can view the full file list here):
+
+Omniscient Full System Overview: Likely a document providing a comprehensive overview of the system’s architecture and functionality.
+README.md: The main documentation file introducing the project and guiding users on installation and usage.
+aidocgenpipeline.py: A Python script, probably related to AI-generated documentation or data pipelines.
+browserautomate_pii_search.py: Automates a browser to search for Personally Identifiable Information.
+cleaner.sh.md.gz: A gzipped Markdown file, possibly instructions or documentation for a cleaning script.
+compiled.zip: A ZIP archive, likely containing compiled binaries or resources.
+core.zip: A ZIP archive, possibly with core components of the system.
+immutable_system.sh: A shell script, probably for setting up or managing an immutable system environment.
+init.zip: Likely contains initialization scripts or files.
+manpages.zip: ZIP file containing manual pages for system commands or scripts.
+mysql backend.txt: Text file, likely describing the MySQL backend setup or schema.
+omnidevchat.py: Python script, possibly for developer chat or communication integration.
+omindiskman.md: Markdown file, probably documentation for a disk management component.
+omnieye_remote.code-workspace: Visual Studio Code workspace configuration for the Omnieye remote project.
+omniscient-master-installer.sh: Main installer shell script for the Omniscient system.
+omniscient-script-indexer: Script or tool for indexing other scripts in the project.
+omniscient.conf: Configuration file for the Omniscient system.
+omniscient_aliases.sh: Shell script defining useful command aliases.
+omniscient_dynamic_menu.sh: Script for generating dynamic menus.
+omniscient_menu.sh: Script managing or displaying menus.
+omniscient_modularize.sh: Script to modularize parts of the system.
+omniscient_path.sh: Shell script for managing system paths.
+omniscient_protect.sh: Shell script for protection or security features.
+omniscient_venv_builder.sh: Script for building Python virtual environments.
+omniscientctl: Likely a command-line tool to control or manage the system.
+omnisetupconfig: Configuration file, probably for setup routines.
+requirements.txt: Lists required Python packages/dependencies for the project.
+rsyslog_mod.py: Python script to modify or interface with rsyslog (system logging).
+setup_omniscient.sh: Setup script for installing or configuring Omniscient.
+singularity-installer.sh: Installer script for Singularity, a container platform.
+singularity_python_installer.py: Python script installing or managing Singularity.
+sync_github.sh: Script for synchronizing with GitHub repositories.
+templates.zip: ZIP archive containing template files.
+wkhtmltopdf_html_service.py: Python service to convert HTML to PDF using wkhtmltopdf.
+woocommerce-vscodereverse3.zip: ZIP archive, likely related to WooCommerce and VS Code integration.
+
+
 ---
 
 ✅ Primary Features
