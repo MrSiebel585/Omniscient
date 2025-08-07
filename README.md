@@ -1,6 +1,13 @@
-# Omniscient
-Yet another digital forensics repository... (we'll see)
+### omniscient integration guidelines to do list and structuring to establish a concrete and final working but fully scalable Linux filesystem structure compliant postfix constraints ###
 
+
+
+omniscientctl - hardcoded requirements (always working minimal functionality requirng no dependcies or support -- 
+
+Centralized local llm rag summerization initial pipeline for the following: tracks maintains versioning changes,debugging, automated inline integration globally with restrictive user/group level permissions. 
+
+Should simultaneously and intelligently refactor consistent upgrade features functions and tech regarding dfir and osint, in conjunction dynamically update menus en bars, config files, and fully agregateable documentation from simple unformated readme.md sources, manages, and flat file pdf style formatted ebook
+s for more detail specific use guidelines operating instructions And best practices.
 
 
 omniscientctl — Unified CLI Overview
