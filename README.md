@@ -10,6 +10,17 @@ Should simultaneously and intelligently refactor consistent upgrade features fun
 s for more detail specific use guidelines operating instructions And best practices.
 
 
+
+HOW OMNISCIENTCTL IS STRUCTURED...
+
+bash hardcoded modular always working bash shell functions and wrappers loaded with simplified global execution from anywhere
+
+python flat file script modules with low level functionality static forensics process and instructions for forensics reporting continuity and user chain of custody accountability.
+
+
+
+
+
 omniscientctl — Unified CLI Overview
 
 File Location:
