@@ -18,6 +18,11 @@ bash hardcoded modular always working bash shell functions and wrappers loaded w
 python flat file script modules with low level functionality static forensics process and instructions for forensics reporting continuity and user chain of custody accountability.
 
 
+Omniscient.service - AI integrated digest and bulk collection scraping for continuous streaming training automation constant fine tuning of ever changing osint dfir best practices and methodoly.
+
+
+
+
 
 
 
