@@ -1,4 +1,4 @@
-Got it — let’s draft a **professional README + documentation framework** for your **Omniscient** repo. You’ll be able to drop this in as `README.md`, and later break sections into `/docs/` if you want more depth.
+.
 
 ---
 
