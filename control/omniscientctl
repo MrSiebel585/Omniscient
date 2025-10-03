@@ -1,0 +1,55 @@
+# omniscientctl base file
+# jeremy@raspberrypi:/opt/omniscient/control/omniscientctl 
+#!/usr/bin/env bash
+
+CMD="$1"
+shift
+
+case "$CMD" in
+  migrate)
+    TARGETS="$@"
+    PKG="/opt/omniscient/backups/shell_master_migration_$(date +%F).tar.gz"
+    MIGRATE_SCRIPT="/etc/shell_master/migrate_shell_master.sh"
+
+    # Always make fresh tarball
+    echo "[*] Packaging current shell_master into $PKG"
+    sudo tar -czf "$PKG" /etc/shell_master
+
+    # If specific targets passed, use them
+    if [ -n "$TARGETS" ]; then
+      for host in $TARGETS; do
+        echo "[*] Migrating to $host"
+        scp "$PKG" "$MIGRATE_SCRIPT" "$host:/tmp/"
+        ssh "$host" "sudo mv /tmp/migrate_shell_master.sh /etc/shell_master/ && sudo chmod +x /etc/shell_master/migrate_shell_master.sh && sudo /etc/shell_master/migrate_shell_master.sh"
+      done
+    else
+      echo "[ERROR] No targets specified. Usage: omniscientctl migrate host1 host2 ..."
+      exit 1
+    fi
+    ;;
+
+  # ... existing commands
+esac
+
+
+# ---- Completion helpers (hidden) -------------------------------------------
+# Emits machine-readable completion data.
+# Usage:
+#   omniscientctl __comp subs
+#   omniscientctl __comp opts <first-token>
+if [[ "${1:-}" == "__comp" ]]; then
+  kind="${2:-}"
+  case "$kind" in
+    subs)
+      echo "help --help -h --version verify legend pick logs version backbone bootstrap shell-review gui streamlit launch-ui omnieye summarize install update backup start stop restart prompt exec launch mysql voice rsyslog drives"
+      exit 0
+      ;;
+    opts)
+      first="${3:-__base}"
+      case "$first" in
+        prompt)  echo "--help --verbose --config --force"; exit 0 ;;
+        *)       echo "--help --version --verbose --config --force"; exit 0 ;;
+      esac
+      ;;
+  esac
+fi
