@@ -1,22 +1,33 @@
 #!/usr/bin/env python3
 """
-omnidevchat.py - REPL AI Agent for Omniscient System Development
+omnidevchat.py - REPL AI Agent for Omniscient System Development (Ollama version)
 Location: /opt/omniscient/ai/omnidevchat.py
 Usage: Run `omnidevchat` to enter the chat.
 """
 
-import openai, json, os, datetime, subprocess
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
+import ollama, json, os, datetime, subprocess
 
 HISTORY_FILE = "/opt/omniscient/ai/.dev_context.json"
 LOG_FILE = "/opt/omniscient/logs/dev_repl.log"
+MODEL = "llama3"  # Change to any installed Ollama model, e.g. "codellama", "mistral", etc.
 
 def load_context():
     if os.path.exists(HISTORY_FILE):
         with open(HISTORY_FILE) as f:
             return json.load(f)
-    return {"messages": [{"role": "system", "content": "You are the AI lead developer for the Omniscient framework. Your job is to suggest, create, and improve scripts, modules, pipelines, and integration tasks. Give direct code if asked."}]}
+    # Initial system prompt
+    return {
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    "You are the AI lead developer for the Omniscient framework. "
+                    "Your job is to suggest, create, and improve scripts, modules, "
+                    "pipelines, and integration tasks. Give direct code if asked."
+                )
+            }
+        ]
+    }
 
 def save_context(ctx):
     with open(HISTORY_FILE, "w") as f:
@@ -25,16 +36,19 @@ def save_context(ctx):
 def log_to_file(prompt, response):
     with open(LOG_FILE, "a") as f:
         now = datetime.datetime.now().isoformat()
-        f.write(f"\n[{now}] User: {prompt}\nGPT: {response}\n")
+        f.write(f"\n[{now}] User: {prompt}\nAI: {response}\n")
 
 def chat(prompt, context):
     context["messages"].append({"role": "user", "content": prompt})
-    res = openai.ChatCompletion.create(
-        model="gpt-4",
+
+    # Ollama chat call
+    res = ollama.chat(
+        model=MODEL,
         messages=context["messages"],
-        temperature=0.3,
+        options={"temperature": 0.3},
     )
-    reply = res['choices'][0]['message']['content']
+    reply = res['message']['content']
+
     context["messages"].append({"role": "assistant", "content": reply})
     log_to_file(prompt, reply)
     save_context(context)
@@ -42,14 +56,16 @@ def chat(prompt, context):
 
 def run_shell(code):
     try:
-        output = subprocess.check_output(code, shell=True, stderr=subprocess.STDOUT, text=True)
+        output = subprocess.check_output(
+            code, shell=True, stderr=subprocess.STDOUT, text=True
+        )
         return output
     except subprocess.CalledProcessError as e:
         return f"Error: {e.output}"
 
 def main():
     ctx = load_context()
-    print("🧠 OmnidevChat — Omniscient AI Developer Console")
+    print("🧠 OmnidevChat — Omniscient AI Developer Console (Ollama)")
     while True:
         try:
             user_input = input("dev> ").strip()
